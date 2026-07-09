@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vids Downloader - Free Reels Downloader | Insta Reels Downloader</title>
+    <meta name="description" content="Vids Downloader is the fastest free reels downloader to save Instagram videos. Download reels online instantly with our secure, login-free insta reels downloader.">
+    <meta name="keywords" content="reels downloader, free reels downloader, insta reels downloader, vids downloader, download instagram reels, download reels online, save ig reels, free video downloader">
+    <link rel="canonical" href="https://vidsdownloader.in/">
+    <link rel="shortcut icon" href="/static/icon1.png" type="image/png">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vidsdownloader.in/">
+    <meta property="og:title" content="Vids Downloader - Free Insta Reels Downloader">
+    <meta property="og:description" content="Use Vids Downloader to download Instagram Reels and social videos online for free. Clean, fast, and no login required.">
+    <meta property="og:image" content="https://vidsdownloader.in/static/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://vidsdownloader.in/">
+    <meta property="twitter:title" content="Vids Downloader - Free Insta Reels Downloader">
+    <meta property="twitter:description" content="Use Vids Downloader to download Instagram Reels and social videos online for free. Clean, fast, and no login required.">
+    <meta property="twitter:image" content="https://vidsdownloader.in/static/og-image.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- Schema.org WebApplication JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Vids Downloader",
+      "alternateName": "SnapStream Video Downloader",
+      "url": "https://vidsdownloader.in/",
+      "image": "https://vidsdownloader.in/static/og-image.png",
+      "description": "Download Instagram Reels and social videos online for free. Fast, private, and requires no login or installation.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All",
+      "browserRequirements": "Requires HTML5 compatible browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Instant in-memory streaming",
+        "No login required",
+        "Zero server disk storage",
+        "Full audio track inclusion"
+      ]
+    }
+    </script>
+</head>
+<body>
+    <!-- Ambient Background Blobs -->
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+    <div class="ambient-blob blob-3"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <img src="/static/icon1.png" alt="SnapStream Logo" class="logo-image" style="width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.3));">
+                <h1 class="logo-text">Snap<span>Stream</span></h1>
+            </div>
+            <p class="tagline">Sleek, fast, and simple social video downloader</p>
+            
+            <!-- Tab Navigation Switcher -->
+            <nav class="tab-navigation" aria-label="Main Navigation">
+                <button type="button" class="tab-btn active" data-tab="downloader-tab">Downloader</button>
+                <button type="button" class="tab-btn" data-tab="guide-tab">How It Works</button>
+                <button type="button" class="tab-btn" data-tab="privacy-tab">Privacy & FAQ</button>
+            </nav>
+        </header>
+
+        <!-- Tab Contents Wrapper -->
+        <div class="tab-content-wrapper">
+            
+            <!-- Tab 1: Downloader & History -->
+            <div id="downloader-tab" class="tab-panel">
+                <!-- Downloader Card -->
+                <section class="card glassmorphic" aria-labelledby="downloader-title">
+                    <h2 id="downloader-title" class="sr-only">Video & Reel Downloader</h2>
+                    
+                    <!-- URL Form -->
+                    <div class="downloader-form">
+                        <div class="input-group">
+                            <label for="reel-url" class="sr-only">Video Link</label>
+                            <div class="input-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                </svg>
+                                <input type="url" id="reel-url" placeholder="Paste social video link here..." required autocomplete="off">
+                                <button type="button" id="paste-btn" class="icon-btn" title="Paste link from clipboard">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                        <rect x="8" y="2" width="8" height="4" rx="1" fill="currentColor"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Fetching Loading State -->
+                        <div id="fetching-loader" class="fetching-loader hidden">
+                            <div class="spinner-glow"></div>
+                            <span id="fetching-text">Loading video details, please wait...</span>
+                        </div>
+                    </div>
+
+                    <!-- Preview Area (Dynamic) -->
+                    <div id="preview-area" class="preview-area hidden">
+                        <div class="preview-card">
+                            <div class="thumbnail-wrapper">
+                                <img id="preview-thumb" src="" alt="Video Thumbnail">
+                                <span id="preview-duration" class="duration-tag">0:00</span>
+                            </div>
+                            <div class="preview-details">
+                                <div class="creator-badge">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                    <span id="preview-creator">@username</span>
+                                </div>
+                                <p id="preview-title" class="preview-title">Video Description</p>
+                                <div class="preview-actions">
+                                    <button type="button" id="download-btn" class="btn primary-btn btn-glowing">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7 10 12 15 17 10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                        <span>Download Now</span>
+                                    </button>
+                                    <button type="button" id="cancel-preview-btn" class="btn text-btn">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Completed State actions -->
+                    <div id="success-actions" class="success-actions hidden">
+                        <div class="success-header">
+                            <div class="success-icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                    <polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                            </div>
+                            <h3>Download Started!</h3>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); text-align: center; margin-top: -4px; max-width: 320px; line-height: 1.5;">
+                            Your video is downloading. Check your device downloads folder.
+                        </p>
+                        <a id="download-again-btn" href="" class="btn secondary-btn" style="margin-top: 8px; gap: 8px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                            </svg>
+                            <span>Download Again</span>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Library/History Section -->
+                <section class="library-section card glassmorphic" aria-labelledby="history-title" style="margin-top: 24px;">
+                    <div class="library-header">
+                        <h2 id="history-title">Download History</h2>
+                        <span id="history-count" class="badge">0</span>
+                    </div>
+                    <div id="history-list" class="history-list">
+                        <!-- Placeholder when empty -->
+                        <div id="history-empty" class="history-empty">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="2" y="2" width="20" height="20" rx="6" stroke-dasharray="4 4"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <p>Your downloaded files will appear here</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Tab 2: How It Works & Features -->
+            <div id="guide-tab" class="tab-panel hidden">
+                <!-- How to Use Section -->
+                <section class="card glassmorphic" aria-labelledby="guide-title" style="margin-bottom: 24px;">
+                    <h3 id="guide-title" class="card-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        How to Use SnapStream
+                    </h3>
+                    <div class="guide-steps">
+                        <div class="guide-step">
+                            <span class="step-num">1</span>
+                            <div class="step-content">
+                                <h4>Copy the Link</h4>
+                                <p>Go to Instagram or other video platforms, find the clip you want to save, and copy the link from the menu or address bar.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <span class="step-num">2</span>
+                            <div class="step-content">
+                                <h4>Paste It Here</h4>
+                                <p>Paste the copied link in the text box. SnapStream will automatically check the link and display the details.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <span class="step-num">3</span>
+                            <div class="step-content">
+                                <h4>Save to Device</h4>
+                                <p>Click "Download Now". The download starts instantly in your browser, saving the video directly to your device.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Features Section -->
+                <section class="card glassmorphic" aria-labelledby="features-title">
+                    <h3 id="features-title" class="card-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                            <polyline points="2 17 12 22 22 17"/>
+                            <polyline points="2 12 12 17 22 12"/>
+                        </svg>
+                        App Highlights
+                    </h3>
+                    <div class="features-grid">
+                        <div class="feature-box">
+                            <div class="feature-icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                                </svg>
+                            </div>
+                            <h4>Fast Downloads</h4>
+                            <p>Downloads are processed in memory for immediate saving to your device without long wait times.</p>
+                        </div>
+                        <div class="feature-box">
+                            <div class="feature-icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                </svg>
+                            </div>
+                            <h4>No Server Storage</h4>
+                            <p>Downloaded videos are never cached or saved on the server. Your downloads remain private.</p>
+                        </div>
+                        <div class="feature-box">
+                            <div class="feature-icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M8 12h8"/>
+                                </svg>
+                            </div>
+                            <h4>Privacy Protection</h4>
+                            <p>We do not collect personal data, IP addresses, or download logs. Your history is stored on your device only.</p>
+                        </div>
+                        <div class="feature-box">
+                            <div class="feature-icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                                </svg>
+                            </div>
+                            <h4>Audio Included</h4>
+                            <p>Gets the complete, pre-merged MP4 format, ensuring your video has high-quality audio track.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Tab 3: Privacy & FAQ Accordion -->
+            <div id="privacy-tab" class="tab-panel hidden">
+                <section class="card glassmorphic" aria-labelledby="privacy-title">
+                    <h3 id="privacy-title" class="card-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        Privacy Policy & FAQ
+                    </h3>
+                    <div class="accordion-group">
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>Are downloaded videos saved on your server?</span>
+                                <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="accordion-inner">
+                                    <p>No. Videos are streamed directly in memory from their source CDN to your web browser. Nothing is saved or stored on our server's hard drive.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>Is my download history private?</span>
+                                <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="accordion-inner">
+                                    <p>Yes. We do not save or log your IP address, filenames, or links. Your history log is stored locally in your own browser's session history file for convenience.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>Can I share the downloaded videos?</span>
+                                <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="accordion-inner">
+                                    <p>Downloaded videos are intended for personal use only. Please respect the copyright of the creators. Do not post, distribute, or share their work without permission.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+        </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p class="footer-disclosure">snapstream is not connected to Instagram™ or any other social platforms. We do not host or store files on our servers; all content belongs to its original owners.</p>
+            <p class="footer-disclosure">Please do not use our tool for copyrighted or restricted content. We comply with DMCA policies and respond to all valid infringement notices.</p>
+            <p class="footer-copyright">&copy; 2026 snapstream - All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Toasts area -->
+    <div id="toast-container" class="toast-container"></div>
+    <script src="/static/app.js"></script>
+</body>
+</html>

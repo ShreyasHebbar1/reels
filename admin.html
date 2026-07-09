@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapStream Admin - Analytics Dashboard</title>
+    <link rel="shortcut icon" href="/static/icon1.png" type="image/png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <style>
+        /* Dashboard-specific overrides and unique styling */
+        :root {
+            --accent-cyan: #06b6d4;
+            --accent-orange: #f97316;
+            --card-border-glow: rgba(139, 92, 246, 0.15);
+        }
+        
+        .admin-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            z-index: 10;
+        }
+        
+        /* Glassmorphism containers */
+        .glass-card {
+            background: rgba(15, 15, 27, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(139, 92, 246, 0.25);
+            box-shadow: 0 20px 40px -15px rgba(139, 92, 246, 0.1);
+        }
+        
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            border-radius: 16px;
+            background: rgba(20, 20, 35, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gradient-primary);
+        }
+        
+        .stat-card.blue::before { background: linear-gradient(180deg, #3b82f6, #06b6d4); }
+        .stat-card.pink::before { background: linear-gradient(180deg, #ec4899, #f43f5e); }
+        .stat-card.green::before { background: linear-gradient(180deg, #10b981, #059669); }
+        .stat-card.purple::before { background: linear-gradient(180deg, #8b5cf6, #d946ef); }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        
+        .stat-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Charts grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-container {
+            min-height: 320px;
+            position: relative;
+        }
+        
+        /* Logs table section */
+        .table-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .search-wrapper {
+            position: relative;
+            flex-grow: 1;
+            max-width: 400px;
+        }
+        
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 16px 12px 42px;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+        
+        .logs-table-container {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(10, 10, 20, 0.4);
+        }
+        
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        
+        .logs-table th {
+            background: rgba(20, 20, 35, 0.8);
+            padding: 14px 18px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .logs-table td {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+            vertical-align: middle;
+        }
+        
+        .logs-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-primary);
+        }
+        
+        .logs-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .thumbnail-col img {
+            width: 44px;
+            height: 44px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .creator-handle {
+            background: rgba(139, 92, 246, 0.15);
+            color: #c084fc;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            display: inline-block;
+        }
+        
+        .action-cell {
+            text-align: right;
+        }
+        
+        .btn-delete {
+            background: transparent;
+            border: none;
+            color: var(--accent-rose);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-delete:hover {
+            background: rgba(244, 63, 94, 0.15);
+            color: #ff4d6d;
+        }
+        
+        .btn-delete svg {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .table-empty {
+            text-align: center;
+            padding: 40px !important;
+            color: var(--text-muted);
+        }
+        
+        .table-empty svg {
+            width: 48px;
+            height: 48px;
+            color: rgba(255, 255, 255, 0.1);
+            margin-bottom: 12px;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 0 10px;
+        }
+        
+        .pagination-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-pag {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: var(--font-sans);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-pag:hover:not(:disabled) {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+        
+        .btn-pag:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        /* Login Form Centering */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+            width: 100%;
+        }
+        
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-align: left;
+        }
+        
+        .form-control {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+        
+        .login-header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        /* Admin Header Actions */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 20px;
+        }
+        
+        .admin-logo h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+        
+        .admin-logo span {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .admin-header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* Modal for Confirmation */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background: #11111f;
+            border: 1px solid rgba(255, 63, 94, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(244, 63, 94, 0.08);
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(244, 63, 94, 0.1);
+            color: var(--accent-rose);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            border: 1px solid rgba(244, 63, 94, 0.15);
+        }
+        
+        .modal-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        
+        .modal-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        /* Flex Alignment helpers */
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding-bottom: 10px;
+        }
+        
+        .d-flex {
+            display: flex;
+            align-items: center;
+        }
+        
+        .gap-10 {
+            gap: 10px;
+        }
+        
+        /* Toast Notification Container Override */
+        #toast-container {
+            z-index: 1100;
+        }
+    </style>
+</head>
+<body>
+    <!-- Ambient Background Blobs -->
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+    <div class="ambient-blob blob-3"></div>
+
+    <div class="admin-wrapper">
+        {% if not logged_in %}
+        <!-- ==================== LOGIN VIEW ==================== -->
+        <div class="login-container">
+            <div class="login-card glass-card">
+                <div class="login-header">
+                    <img src="/static/icon1.png" alt="Logo" style="width: 50px; height: 50px; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.4));">
+                    <h2>SnapStream <span>Admin</span></h2>
+                    <p>Enter credentials to access stats dashboard</p>
+                </div>
+                
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" class="form-control" placeholder="Admin username" required autocomplete="username">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" class="form-control" placeholder="Admin password" required autocomplete="current-password">
+                    </div>
+                    
+                    <button type="submit" id="btn-login" class="btn primary-btn btn-glowing" style="width: 100%; margin-top: 10px; justify-content: center;">
+                        <span>Sign In</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <!-- ==================== DASHBOARD VIEW ==================== -->
+        <header class="admin-header">
+            <div class="admin-logo">
+                <h1>SnapStream <span>Admin Portal</span></h1>
+            </div>
+            <div class="admin-header-actions">
+                <a href="/" class="btn secondary-btn" style="padding: 8px 16px; font-size: 0.9rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 4px;">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                    <span>View Site</span>
+                </a>
+                <button id="btn-open-reset" class="btn text-btn" style="color: var(--accent-rose); border: 1px solid rgba(244, 63, 94, 0.15); padding: 8px 16px; font-size: 0.9rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 4px;">
+                        <path d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16"/>
+                    </svg>
+                    <span>Reset Telemetry</span>
+                </button>
+                <a href="/admin/logout" class="btn primary-btn" style="padding: 8px 16px; font-size: 0.9rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 4px;">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>Sign Out</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Cookie Rotation Status Bar -->
+        <div id="cookie-status-banner" class="glass-card" style="margin-bottom: 30px; padding: 15px 25px; display: flex; align-items: center; justify-content: space-between; border-color: rgba(255, 255, 255, 0.08); transition: var(--transition-smooth);">
+            <div class="d-flex" style="gap: 15px;">
+                <div id="cookie-status-dot" style="width: 12px; height: 12px; border-radius: 50%; background: #64748b; box-shadow: 0 0 10px #64748b; transition: all 0.3s ease;"></div>
+                <div>
+                    <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">
+                        Cookie Status: <span id="cookie-status-text">Checking...</span>
+                    </div>
+                    <div id="cookie-status-time" style="font-size: 0.75rem; color: var(--text-muted);">
+                        Last updated: --
+                    </div>
+                </div>
+            </div>
+            <div id="cookie-error-msg" style="font-size: 0.8rem; color: var(--accent-rose); font-weight: 500; max-width: 50%; text-align: right; line-height: 1.4; word-break: break-word;">
+            </div>
+        </div>
+
+        <!-- Stats Counter Widgets Grid -->
+        <section class="stats-grid">
+            <div class="stat-card blue">
+                <span class="stat-label">Total Page Views</span>
+                <span id="stat-views" class="stat-value">0</span>
+                <span class="stat-desc">Index page requests</span>
+            </div>
+            <div class="stat-card pink">
+                <span class="stat-label">Unique Visitors</span>
+                <span id="stat-uniques" class="stat-value">0</span>
+                <span class="stat-desc">Across all-time logs</span>
+            </div>
+            <div class="stat-card purple">
+                <span class="stat-label">Meta Queries</span>
+                <span id="stat-queries" class="stat-value">0</span>
+                <span class="stat-desc">Video details fetched</span>
+            </div>
+            <div class="stat-card green">
+                <span class="stat-label">Video Downloads</span>
+                <span id="stat-downloads" class="stat-value">0</span>
+                <span class="stat-desc">Successful streams served</span>
+            </div>
+        </section>
+
+        <!-- Charts Segment -->
+        <section class="charts-grid">
+            <!-- Line Chart: Page Views vs Downloads -->
+            <div class="glass-card">
+                <h3 class="chart-title">Traffic Trend (Last 30 Days)</h3>
+                <div class="chart-container">
+                    <canvas id="trafficTrendChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Pie/Doughnut Chart: Platforms & Browsers Toggle -->
+            <div class="glass-card">
+                <div class="flex-between" style="border-bottom: 1px solid rgba(255, 255, 255, 0.04); padding-bottom: 10px; margin-bottom: 20px;">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary);">Device Share</h3>
+                    <select id="device-chart-toggle" style="background: rgba(20, 20, 35, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-primary); border-radius: 6px; padding: 4px 8px; font-family: var(--font-sans); font-size: 0.8rem; outline: none;">
+                        <option value="platforms">Operating Systems</option>
+                        <option value="browsers">Web Browsers</option>
+                    </select>
+                </div>
+                <div class="chart-container" style="display: flex; align-items: center; justify-content: center;">
+                    <canvas id="deviceShareChart" style="max-height: 260px; max-width: 260px;"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Downloads Log Log Table Card -->
+        <section class="glass-card">
+            <div class="table-header-actions">
+                <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary);">Download Logs</h3>
+                
+                <div class="d-flex gap-10" style="width: 100%; max-width: 500px; justify-content: flex-end;">
+                    <div class="search-wrapper">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" id="log-search" class="search-input" placeholder="Search title or creator...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="logs-table-container">
+                <table class="logs-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Preview</th>
+                            <th>Uploader</th>
+                            <th>Video Title</th>
+                            <th>Duration</th>
+                            <th>Timestamp</th>
+                            <th style="width: 60px; text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-table-body">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination bar -->
+            <div class="pagination">
+                <div id="pagination-info" class="pagination-info">Showing 0 to 0 of 0 logs</div>
+                <div class="pagination-controls">
+                    <button id="btn-prev" class="btn-pag" disabled>Previous</button>
+                    <button id="btn-next" class="btn-pag" disabled>Next</button>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+    </div>
+
+    <!-- Confirmation Modal Overlay -->
+    <div id="reset-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <h4 class="modal-title">Reset Analytics Data?</h4>
+            <p class="modal-desc">Are you sure you want to reset all visitor counts and stats? This action is permanent and cannot be undone.</p>
+            <div class="modal-buttons">
+                <button id="btn-confirm-cancel" class="btn secondary-btn" style="padding: 10px 20px;">Cancel</button>
+                <button id="btn-confirm-reset" class="btn primary-btn" style="background: var(--accent-rose); border-color: rgba(244, 63, 94, 0.2); padding: 10px 20px;">Yes, Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating toast container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripting for interactions and telemetry loading -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Helper Toast Messages
+            function showToast(message, type = 'success') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                const iconSvg = type === 'success' 
+                    ? `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`
+                    : `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+                    
+                toast.innerHTML = `
+                    ${iconSvg}
+                    <span class="toast-message">${message}</span>
+                `;
+                
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.animation = 'toastOut 0.3s forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, 4000);
+            }
+
+            // -------------------- LOGIN CONTROLLER --------------------
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const usernameVal = document.getElementById('username').value.trim();
+                    const passwordVal = document.getElementById('password').value;
+                    const loginBtn = document.getElementById('btn-login');
+                    
+                    loginBtn.disabled = true;
+                    loginBtn.innerHTML = '<span>Verifying...</span>';
+                    
+                    try {
+                        const response = await fetch('/admin/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: usernameVal, password: passwordVal })
+                        });
+                        
+                        const resData = await response.json();
+                        if (response.ok && resData.success) {
+                            showToast('Login successful! Redirecting...', 'success');
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            throw new Error(resData.error || 'Authentication failed');
+                        }
+                    } catch (err) {
+                        showToast(err.message, 'error');
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = '<span>Sign In</span>';
+                    }
+                });
+                return; // Stop execution if we are on the login page
+            }
+
+            // -------------------- DASHBOARD CONTROLLER --------------------
+            let rawHistoryData = [];
+            let filteredHistoryData = [];
+            let rawStatsData = {};
+            
+            // Pagination Settings
+            let currentPage = 1;
+            const itemsPerPage = 8;
+
+            // Chart instances
+            let trafficTrendChart = null;
+            let deviceShareChart = null;
+
+            // Load Telemetry Dashboard Data
+            async function loadDashboardData() {
+                try {
+                    const response = await fetch('/admin/api/stats');
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            window.location.reload();
+                            return;
+                        }
+                        throw new Error('Failed to load statistics');
+                    }
+                    
+                    const data = await response.json();
+                    rawStatsData = data.stats || {};
+                    rawHistoryData = data.history || [];
+                    
+                    // Render Metrics Cards
+                    renderMetrics();
+                    
+                    // Render Charts
+                    renderCharts();
+                    
+                    // Filter and render history logs
+                    applyFilters();
+                    
+                    // Render Cookie Rotation Status
+                    renderCookieStatus(data.cookie_status);
+                    
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            }
+
+            function renderMetrics() {
+                // Total Page Views
+                document.getElementById('stat-views').textContent = rawStatsData.total_page_views || 0;
+                
+                // Meta info queries
+                document.getElementById('stat-queries').textContent = rawStatsData.total_api_info || 0;
+                
+                // Video downloads
+                document.getElementById('stat-downloads').textContent = rawStatsData.total_api_download || 0;
+                
+                // Total Unique Visitors across all daily logs
+                let uniquesSet = new Set();
+                if (rawStatsData.daily) {
+                    Object.values(rawStatsData.daily).forEach(day => {
+                        if (day.unique_visitors && Array.isArray(day.unique_visitors)) {
+                            day.unique_visitors.forEach(v => uniquesSet.add(v));
+                        }
+                    });
+                }
+                document.getElementById('stat-uniques').textContent = uniquesSet.size;
+            }
+
+            function renderCookieStatus(cookieStatus) {
+                const banner = document.getElementById('cookie-status-banner');
+                const dot = document.getElementById('cookie-status-dot');
+                const text = document.getElementById('cookie-status-text');
+                const time = document.getElementById('cookie-status-time');
+                const errorMsg = document.getElementById('cookie-error-msg');
+                
+                if (!cookieStatus) {
+                    banner.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                    dot.style.background = '#64748b';
+                    dot.style.boxShadow = '0 0 10px #64748b';
+                    text.textContent = 'No Status Recorded';
+                    text.style.color = 'var(--text-secondary)';
+                    time.textContent = 'Run update_cookies.py to initialize';
+                    errorMsg.style.display = 'none';
+                    return;
+                }
+                
+                const lastAttempt = cookieStatus.last_attempt_time || '--';
+                const lastSuccess = cookieStatus.last_success_time || '--';
+                
+                if (cookieStatus.status === 'success') {
+                    banner.style.borderColor = 'rgba(16, 185, 129, 0.25)';
+                    banner.style.boxShadow = '0 20px 40px -15px rgba(16, 185, 129, 0.05)';
+                    dot.style.background = '#10b981';
+                    dot.style.boxShadow = '0 0 10px #10b981';
+                    text.textContent = 'Active & Day-to-Day Updated';
+                    text.style.color = '#10b981';
+                    time.textContent = `Last successful rotation: ${lastSuccess}`;
+                    errorMsg.style.display = 'none';
+                } else if (cookieStatus.status === 'error') {
+                    banner.style.borderColor = 'rgba(244, 63, 94, 0.25)';
+                    banner.style.boxShadow = '0 20px 40px -15px rgba(244, 63, 94, 0.05)';
+                    dot.style.background = '#f43f5e';
+                    dot.style.boxShadow = '0 0 10px #f43f5e';
+                    text.textContent = 'Rotation Failed / Error';
+                    text.style.color = '#f43f5e';
+                    time.textContent = `Last attempted: ${lastAttempt} | Last success: ${lastSuccess}`;
+                    errorMsg.textContent = cookieStatus.error_message || 'Unknown error occurred during rotation';
+                    errorMsg.style.display = 'block';
+                }
+            }
+
+            // Chart Render Functions
+            function renderCharts() {
+                // 1. Process Trend Data for Line Chart
+                const dailyData = rawStatsData.daily || {};
+                
+                // Get list of last 30 days sorted
+                const sortedDates = Object.keys(dailyData).sort().slice(-30);
+                
+                // Fallback to empty day if no dates exist
+                const datesLabels = sortedDates.length > 0 ? sortedDates : [new Date().toISOString().split('T')[0]];
+                const viewsPoints = sortedDates.map(d => dailyData[d].page_views || 0);
+                const downloadsPoints = sortedDates.map(d => dailyData[d].api_download || 0);
+                
+                if (sortedDates.length === 0) {
+                    viewsPoints.push(0);
+                    downloadsPoints.push(0);
+                }
+
+                // Destroy old instance if exists
+                if (trafficTrendChart) {
+                    trafficTrendChart.destroy();
+                }
+
+                const ctxTrend = document.getElementById('trafficTrendChart').getContext('2d');
+                trafficTrendChart = new Chart(ctxTrend, {
+                    type: 'line',
+                    data: {
+                        labels: datesLabels,
+                        datasets: [
+                            {
+                                label: 'Page Views',
+                                data: viewsPoints,
+                                borderColor: '#4f46e5',
+                                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                                tension: 0.35,
+                                fill: true,
+                                borderWidth: 3
+                            },
+                            {
+                                label: 'Downloads Triggered',
+                                data: downloadsPoints,
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                                tension: 0.35,
+                                fill: true,
+                                borderWidth: 3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#cbd5e1', font: { family: 'Outfit', size: 12 } }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { color: '#64748b', font: { family: 'Outfit' } }
+                            },
+                            y: {
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { color: '#64748b', font: { family: 'Outfit' }, stepSize: 1 },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                // 2. Render OS / Browser Share Chart
+                renderDeviceShare();
+            }
+
+            function renderDeviceShare() {
+                const chartToggle = document.getElementById('device-chart-toggle').value;
+                const sourceData = rawStatsData[chartToggle] || {};
+                
+                const labels = Object.keys(sourceData);
+                const values = Object.values(sourceData);
+                
+                if (deviceShareChart) {
+                    deviceShareChart.destroy();
+                }
+                
+                const ctxShare = document.getElementById('deviceShareChart').getContext('2d');
+                
+                const displayLabels = labels.length > 0 ? labels : ['No Data'];
+                const displayValues = values.length > 0 ? values : [1];
+                const bgColors = labels.length > 0 
+                    ? ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f97316', '#64748b']
+                    : ['rgba(255,255,255,0.05)'];
+                
+                deviceShareChart = new Chart(ctxShare, {
+                    type: 'doughnut',
+                    data: {
+                        labels: displayLabels,
+                        datasets: [{
+                            data: displayValues,
+                            backgroundColor: bgColors,
+                            borderWidth: 1,
+                            borderColor: '#09090e'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#cbd5e1', font: { family: 'Outfit', size: 11 }, padding: 12 }
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+
+            document.getElementById('device-chart-toggle').addEventListener('change', renderDeviceShare);
+
+            // -------------------- DOWNLOAD LOGS CONTROLLER --------------------
+            const logSearchInput = document.getElementById('log-search');
+            logSearchInput.addEventListener('input', () => {
+                currentPage = 1;
+                applyFilters();
+            });
+
+            function applyFilters() {
+                const query = logSearchInput.value.toLowerCase().trim();
+                
+                if (!query) {
+                    filteredHistoryData = [...rawHistoryData];
+                } else {
+                    filteredHistoryData = rawHistoryData.filter(item => {
+                        const title = (item.title || '').toLowerCase();
+                        const creator = (item.uploader || '').toLowerCase();
+                        return title.includes(query) || creator.includes(query);
+                    });
+                }
+                
+                renderLogsTable();
+            }
+
+            function renderLogsTable() {
+                const tbody = document.getElementById('logs-table-body');
+                tbody.innerHTML = '';
+                
+                if (filteredHistoryData.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="table-empty">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="12"/>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                                <p>No logs found matching search criteria</p>
+                            </td>
+                        </tr>
+                    `;
+                    updatePagination(0);
+                    return;
+                }
+                
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, filteredHistoryData.length);
+                const pageItems = filteredHistoryData.slice(startIndex, endIndex);
+                
+                pageItems.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    
+                    const creatorText = item.uploader ? `@${item.uploader}` : 'Unknown';
+                    const proxyThumbnailUrl = `/api/proxy-image?url=${encodeURIComponent(item.thumbnail || '')}`;
+                    
+                    row.innerHTML = `
+                        <td class="thumbnail-col">
+                            <img src="${proxyThumbnailUrl}" alt="Thumb" onerror="this.src='/static/icon1.png'">
+                        </td>
+                        <td>
+                            <span class="creator-handle">${creatorText}</span>
+                        </td>
+                        <td>
+                            <div style="font-weight: 500; max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.title || 'Instagram Reel'}">
+                                ${item.title || 'Instagram Reel'}
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                <a href="${item.url}" target="_blank" style="color: var(--text-muted); text-decoration: none;">${item.url}</a>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="font-family: monospace;">${item.duration || 'Unknown'}</span>
+                        </td>
+                        <td>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">${item.date || 'Unknown'}</span>
+                        </td>
+                        <td class="action-cell">
+                            <button class="btn-delete" data-url="${item.url}" title="Delete item from log">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    <line x1="10" y1="11" x2="10" y2="17"/>
+                                    <line x1="14" y1="11" x2="14" y2="17"/>
+                                </svg>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                tbody.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const url = btn.getAttribute('data-url');
+                        if (url) {
+                            if (confirm('Delete this download from history? This updates the public list as well.')) {
+                                await deleteHistoryItem(url);
+                            }
+                        }
+                    });
+                });
+
+                updatePagination(filteredHistoryData.length);
+            }
+
+            function updatePagination(totalItems) {
+                const startIndex = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+                const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+                
+                document.getElementById('pagination-info').textContent = `Showing ${startIndex} to ${endIndex} of ${totalItems} logs`;
+                
+                const prevBtn = document.getElementById('btn-prev');
+                const nextBtn = document.getElementById('btn-next');
+                
+                prevBtn.disabled = currentPage === 1;
+                nextBtn.disabled = currentPage * itemsPerPage >= totalItems;
+            }
+
+            document.getElementById('btn-prev').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderLogsTable();
+                }
+            });
+
+            document.getElementById('btn-next').addEventListener('click', () => {
+                if (currentPage * itemsPerPage < filteredHistoryData.length) {
+                    currentPage++;
+                    renderLogsTable();
+                }
+            });
+
+            async function deleteHistoryItem(url) {
+                try {
+                    const response = await fetch('/admin/api/history/delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ url: url })
+                    });
+                    
+                    const resData = await response.json();
+                    if (response.ok && resData.success) {
+                        showToast('Log entry removed successfully', 'success');
+                        loadDashboardData();
+                    } else {
+                        throw new Error(resData.error || 'Failed to delete history item');
+                    }
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            }
+
+            // -------------------- TELEMETRY RESET CONTROLLER --------------------
+            const resetModal = document.getElementById('reset-modal');
+            const openResetBtn = document.getElementById('btn-open-reset');
+            const cancelResetBtn = document.getElementById('btn-confirm-cancel');
+            const confirmResetBtn = document.getElementById('btn-confirm-reset');
+
+            openResetBtn.addEventListener('click', () => {
+                resetModal.classList.add('active');
+            });
+
+            cancelResetBtn.addEventListener('click', () => {
+                resetModal.classList.remove('active');
+            });
+
+            confirmResetBtn.addEventListener('click', async () => {
+                resetModal.classList.remove('active');
+                try {
+                    const response = await fetch('/admin/api/reset-stats', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    const resData = await response.json();
+                    if (response.ok && resData.success) {
+                        showToast('All stats have been reset to zero', 'success');
+                        loadDashboardData();
+                    } else {
+                        throw new Error(resData.error || 'Failed to reset statistics');
+                    }
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            });
+
+            loadDashboardData();
+        });
+    </script>
+</body>
+</html>
