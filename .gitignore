@@ -1,0 +1,25 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary Downloads & Cache
+downloads/
+
+# Local/Production Sensitive Credentials
+secrets.json
+
+# Live Generated Data & Telemetry
+cookies.txt
+cookie_status.json
+stats.json
+history.json
+
+# Operating System Files
+.DS_Store
+Thumbs.db
