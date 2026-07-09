@@ -1,0 +1,21 @@
+{
+    "total_page_views": 5,
+    "total_api_info": 5,
+    "total_api_download": 2,
+    "daily": {
+        "2026-07-09": {
+            "page_views": 5,
+            "api_info": 5,
+            "api_download": 2,
+            "unique_visitors": [
+                "12ca17b49af22894"
+            ]
+        }
+    },
+    "browsers": {
+        "Chrome": 5
+    },
+    "platforms": {
+        "Windows": 5
+    }
+}

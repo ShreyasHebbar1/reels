@@ -1,0 +1,6 @@
+{
+    "last_attempt_time": "2026-07-09 18:06:32",
+    "last_success_time": null,
+    "status": "error",
+    "error_message": "Fatal error: Page.wait_for_selector: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"input[name=\\\"username\\\"]\") to be visible\n"
+}
